@@ -3,6 +3,8 @@ const canvasWidth = 512
 const canvasHeight = 512
 const center = canvasWidth / 2
 const BEATS_IN_BAR = 4
+let BG_COLOR;
+
 
 const chords = [
   "yellow",
@@ -44,14 +46,14 @@ const runes_list = [
 ]
 
 function setup() {
+  BG_COLOR = color(241, 148, 148, 100)
   createCanvas(canvasWidth, canvasHeight)
   frameRate(60)
-  background(255 / 5, 245 / 5, 238 / 5)
+  background(BG_COLOR)
 }
 
 function draw() {
-  // background("red")
-  drawGradient(0, 0, canvasWidth, canvasHeight, color(241, 148, 148, 100), color(179, 179, 179, 10), "Y")
+  background(BG_COLOR)
   vinyl(chords)
   runes_list.forEach(rune => rune.draw())
 }
@@ -106,22 +108,4 @@ function vinyl(chords) {
 
 function drawGradient(x, y, w, h, c1, c2, axis) {
   noFill();
-
-  if (axis === "Y") {
-    // Top to bottom gradient
-    for (let i = y; i <= y + h; i++) {
-      let inter = map(i, y, y + h, 0, 1);
-      let c = lerpColor(c1, c2, inter);
-      stroke(c);
-      line(x, i, x + w, i);
-    }
-  } else if (axis === "X") {
-    // Left to right gradient
-    for (let i = x; i <= x + w; i++) {
-      let inter = map(i, x, x + w, 0, 1);
-      let c = lerpColor(c1, c2, inter);
-      stroke(c);
-      line(i, y, i, y + h);
-    }
-  }
 }
