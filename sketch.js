@@ -32,12 +32,7 @@ class Rune {
   draw() {
     fill(this.col)
     let [x, y] = this.getPos()
-    // Handle p5 silliness so squares are positioned based on center
-    x += canvasWidth / 2
-    y += canvasHeight / 2
-    x -= this.size / 2
-    y -= this.size / 2
-    square(x, y, this.size)
+    drawSquare(x, y, this.size)
   }
 }
 
@@ -60,14 +55,33 @@ function draw() {
   runes_list.forEach(rune => rune.draw())
 }
 
+// Draws square from center instead of top left
+// Coordinates (0, 0) will draw a square in the center of the canvas
+function drawSquare(x, y, size) {
+  square(
+    x - size/2 + canvasWidth/2,
+    y - size/2 + canvasHeight/2,
+    size
+  )
+}
+
+function drawCircle(x, y, size) {
+  circle(
+    x + canvasWidth/2,
+    y + canvasHeight/2,
+    size
+  )
+}
+
 function vinyl(chords) {
   fill("black")
-  circle(center, center, 400)
+  drawCircle(0, 0, 400)
+
   stroke("grey")
-  circle(center, center, 300)
-  stroke("grey")
-  circle(center, center, 200)
-  // DALL-E colors
+  drawCircle(0, 0, 300)
+  drawCircle(0, 0, 200)
+
+  // DALL-E square blobs indicating next chords
   const squareSize = 8
   noStroke()
   chords.forEach((chordCol, idx) => {
@@ -76,17 +90,16 @@ function vinyl(chords) {
       circle(center, center, 100)
       return
     }
-    square(
+    drawSquare(
       // Center color blobs
-      center + (squareSize * (idx - chords.length / 2)) - squareSize/2,
-      center + 20 - squareSize/2,
+      (squareSize * (idx - chords.length / 2)),
+      20,
       squareSize
-      //...dalleEllipseDims
     )
   })
 
   // Center
   fill("black");
-  circle(center, center, 20);
+  drawCircle(0, 0, 20);
 }
 
