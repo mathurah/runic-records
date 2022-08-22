@@ -1,7 +1,6 @@
 //CONSTANTS
-const canvasWidth = 512
-const canvasHeight = 512
-const center = canvasWidth / 2
+const canvasWidth = 1024
+const canvasHeight = 1024
 const BEATS_IN_BAR = 4
 let BG_COLOR;
 
@@ -17,8 +16,8 @@ class Rune {
   constructor(beat, col) {
     this.beat = beat
     this.col = col
-    this.size = 16
-    this.magnitude = 200
+    this.size = 24
+    this.magnitude = 300
   }
 
   getPos() {
@@ -78,32 +77,32 @@ function drawCircle(x, y, size) {
 
 function vinyl(chords) {
   fill("black")
-  drawCircle(0, 0, 400)
+  drawCircle(0, 0, 600)
 
   stroke("grey")
+  drawCircle(0, 0, 450)
   drawCircle(0, 0, 300)
-  drawCircle(0, 0, 200)
 
   // DALL-E square blobs indicating next chords
-  const squareSize = 8
+  const squareSize = 12
   noStroke()
   chords.forEach((chordCol, idx) => {
     fill(chordCol)
     if (idx == 0) {
-      drawCircle(0, 0, 100)
+      drawCircle(0, 0, 150)
       return
     }
     drawSquare(
       // Center color blobs
       (squareSize * (idx - chords.length / 2)),
-      20,
+      30,
       squareSize
     )
   })
 
   // Center
   fill("black");
-  drawCircle(0, 0, 20);
+  drawCircle(0, 0, 30);
 }
 
 function drawGradient(x, y, w, h, c1, c2, axis) {
