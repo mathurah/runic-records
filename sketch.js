@@ -8,6 +8,7 @@ const secondsPerBar = 60 / BPM * BEATS_IN_BAR;
 let BG_COLOR;
 let COLORS;
 let latest16thBeat
+let latestBar
 let runes_list
 let song
 
@@ -16,12 +17,31 @@ const chords = ["yellow", "blue", "red", "green"];
 const vinylDiamter = 650;
 const groovesDiamters = [550, 425, 300];
 
-class Rune {
+
+class RuneSet {
+  constructor(runes, minActiveBarNum, maxActiveBarNum, grooveIndex) {
+    this.runes = []
+    runes.forEach(rune => this.runes.push(
+      new Rune(rune.beat, rune.col, minActiveBarNum, maxActiveBarNum, grooveIndex)
+    ))
+  }
+}
+
+class _Rune {
   constructor(beat, col) {
     this.beat = beat;
     this.col = col;
+  }
+}
+
+class Rune {
+  constructor(beat, col, minActiveBarNum, maxActiveBarNum, grooveIndex) {
+    this.beat = beat;
+    this.col = col;
+    this.minActiveBarNum = minActiveBarNum
+    this.maxActiveBarNum = maxActiveBarNum
     this.size = 24;
-    this.magnitude = 0.5 * groovesDiamters[0];
+    this.magnitude = 0.5 * groovesDiamters[grooveIndex];
   }
 
   getPos() {
@@ -35,7 +55,12 @@ class Rune {
   }
 
   draw() {
-    if (this.isActive(latest16thBeat) && song.currentTime() > 0) {
+    if (
+      (song.currentTime() > 0) &&
+      (this.isActive(latest16thBeat)) &&
+      (latestBar >= this.minActiveBarNum) &&
+      (latestBar <= this.maxActiveBarNum)
+    ) {
       fill(this.col)
     } else {
       fill("white");
@@ -73,12 +98,24 @@ function setup() {
   };
   BG_COLOR = COLORS["pink"];
 
-  runes_list = [
-    new Rune(1, COLORS["blue"]),
-    new Rune(2, COLORS["green"]),
-    new Rune(2.5, COLORS["blue"]),
-    new Rune(3, COLORS["green"]),
-  ];
+  const runesList1 = [
+    new _Rune(1, COLORS["blue"]),
+    new _Rune(1.5, COLORS["yellow"]),
+    new _Rune(2, COLORS["green"]),
+    new _Rune(3, COLORS["green"]),
+    new _Rune(4, COLORS["green"]),
+  ]
+
+  const runesList2 = [
+    new _Rune(1, COLORS["blue"]),
+    new _Rune(2, COLORS["green"]),
+    new _Rune(3, COLORS["green"]),
+    new _Rune(4, COLORS["yellow"]),
+    new _Rune(4.5, COLORS["green"]),
+  ]
+
+  runeSet1 = new RuneSet(runesList1, 1, 3, 0)
+  runeSet2 = new RuneSet(runesList2, 4, 4, 1)
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.mousePressed(canvasPressed);
@@ -107,11 +144,12 @@ function draw() {
   pctBarCompletion = song.currentTime() % secondsPerBar / secondsPerBar
   latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4)
   latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1
- 
-  runes_list.forEach(rune => rune.draw())
 
-  fill("pink");
-  drawCompleteRecordHead();
+  runeSet1.runes.forEach(rune => rune.draw())
+  runeSet2.runes.forEach(rune => rune.draw())
+
+  // fill("pink");
+  // drawCompleteRecordHead();
 }
 
 // Draws square from center instead of top left
