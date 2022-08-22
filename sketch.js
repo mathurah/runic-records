@@ -5,8 +5,9 @@ const BEATS_IN_BAR = 4;
 const BPM = 149;
 const secondsPerBar = (60 / BPM) * BEATS_IN_BAR;
 
-let BG_COLOR;
 let COLORS;
+let BG_COLOR;
+let pctBarCompletion;
 let latest16thBeat;
 let latestBar;
 let song;
@@ -59,6 +60,10 @@ class Chord {
       latestBar <= this.maxActiveBarNum
     ) {
       drawCircle(0, 0, 150);
+
+      fill("white")
+      const radsBarCompletion = TWO_PI * pctBarCompletion
+      arc(0, 0, 150, 150, PI + radsBarCompletion, TWO_PI + radsBarCompletion)
     } else {
       drawSquare(
         // Center color blobs
@@ -214,6 +219,8 @@ function draw() {
   latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1;
 
   if (prevLatestBar != latestBar) {
+    // Rotate chords
+    // Preferable to array rotate instead of index magic to maintain z-indexes
     chordList1.push(chordList1.shift());
     chordSet1 = new ChordSet(chordList1, 1, 32);
   }
