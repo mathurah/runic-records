@@ -2,14 +2,14 @@
 const canvasWidth = 1024;
 const canvasHeight = 1200;
 const BEATS_IN_BAR = 4;
-const BPM = 120;
+const BPM = 149;
 const secondsPerBar = 60 / BPM * BEATS_IN_BAR;
 
 let BG_COLOR;
 let COLORS;
-let ms = 0
 let latest16thBeat
 let runes_list
+let song
 
 const chords = ["yellow", "blue", "red", "green"];
 
@@ -26,7 +26,7 @@ class Rune {
 
   getPos() {
     // Convert beat to radians
-    const rad = (this.beat / BEATS_IN_BAR) * TWO_PI;
+    const rad = ((this.beat-2) / BEATS_IN_BAR) * TWO_PI;
 
     // Convert beat to coordinates
     const y = sin(rad);
@@ -35,7 +35,7 @@ class Rune {
   }
 
   draw() {
-    if (this.isActive(latest16thBeat)) {
+    if (this.isActive(latest16thBeat) && song.currentTime() > 0) {
       fill(this.col)
     } else {
       fill("white")
@@ -50,6 +50,18 @@ class Rune {
       (this.beat * 4 == latest16thBeat - 1)
     )
   }
+}
+
+function canvasPressed() {
+  if (song.isPlaying()) {
+    song.stop()
+  } else {
+    song.play()
+  }
+}
+
+function preload() {
+  song = loadSound("audio/girl-in-red--serotonin.mp3");
 }
 
 function setup() {
@@ -69,8 +81,9 @@ function setup() {
     new Rune(3, COLORS["green"]),
   ]
 
-  createCanvas(canvasWidth, canvasHeight);
-  frameRate(120);
+  let canvas = createCanvas(canvasWidth, canvasHeight);
+  canvas.mousePressed(canvasPressed);
+  frameRate(30);
   background(BG_COLOR);
 }
 
@@ -92,9 +105,9 @@ function draw() {
   noStroke()
   drawVinyl(chords)
 
-  ms += deltaTime
-  pctBarCompletion = ms / 1000 % secondsPerBar / secondsPerBar
-  latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR)
+  pctBarCompletion = song.currentTime() % secondsPerBar / secondsPerBar
+  latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4)
+  latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1
  
   runes_list.forEach(rune => rune.draw())
 }
