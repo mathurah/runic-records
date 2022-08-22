@@ -59,61 +59,68 @@ function setup() {
 
 function draw() {
   // Init styles
-  fill("white")
-  stroke("white")
-  strokeWeight(1)
-  
+  fill("white");
+  stroke("white");
+  strokeWeight(1);
+
   // Sets origin to center
-  translate(width/2, height/2); 
+  translate(width / 2, height / 2);
   // Make Y axis point up
   scale(1, -1);
 
-  background(BG_COLOR)
+  background(BG_COLOR);
 
-  noStroke()
-  drawVinyl(chords)
- 
-  runes_list.forEach(rune => rune.draw())
-  fill("white")
-  const playHeadSize = 100
-  rotate(-PI/4)
-  drawTriangle(0, vinylDiamter/2, playHeadSize)
-  rotate(0)
+  noStroke();
+  drawVinyl(chords);
+
+  runes_list.forEach((rune) => rune.draw());
+  fill("white");
+  const playHeadSize = 100;
+  rotate(-PI / 4);
+  drawTriangle(0, vinylDiamter / 2, playHeadSize);
+  rotate(0);
+
+  fill("pink");
+  drawCompleteRecordHead();
 }
 
 // Draws square from center instead of top left
 // Coordinates (0, 0) will draw a square in the center of the canvas
 function drawSquare(x, y, size) {
-  square(
-    x - size/2,
-    y - size/2,
-    size
-  );
+  square(x - size / 2, y - size / 2, size);
 }
 
 // Upside down equilateral triangle
 function drawTriangle(x, y, r) {
-  const l = sqrt(r)
-  triangle(
-    x - l,
-    y + l,
-    x + l,
-    y + l,
-    x,
-    y - l,
-  )
+  const l = sqrt(r);
+  triangle(x - l, y + l, x + l, y + l, x, y - l);
 }
 
+function drawCompleteRecordHead() {
+  const recordHeadSize = [60, 90];
+  rotate(PI / 15);
+  drawRecordHead(0, 0, recordHeadSize[0], recordHeadSize[1]);
+  drawRecordSide();
+}
+function drawRecordHead(x, y, width, height) {
+  rotate(PI);
+  rect(x - groovesDiamters[2] / 3, y + groovesDiamters[1] / 2, width, height);
+}
+
+function drawRecordSide() {
+  rotate(PI / 2);
+  rect(groovesDiamters[2] / 1.25, 10, 20, 30);
+}
 function drawCircle(x, y, size) {
-  circle(x, y, size)
+  circle(x, y, size);
 }
 
 function drawVinyl(chords) {
   fill("black");
   drawCircle(0, 0, vinylDiamter);
 
-  stroke("white")
-  groovesDiamters.forEach(diamter => drawCircle(0, 0, diamter))
+  stroke("white");
+  groovesDiamters.forEach((diamter) => drawCircle(0, 0, diamter));
 
   // DALL-E square blobs indicating next chords
   const squareSize = 12;
@@ -126,7 +133,7 @@ function drawVinyl(chords) {
     }
     drawSquare(
       // Center color blobs
-      (squareSize * (idx - chords.length / 2)),
+      squareSize * (idx - chords.length / 2),
       -30,
       squareSize
     );
@@ -147,12 +154,12 @@ function drawLabel() {
   strokeWeight(0);
   stroke("black");
   fill("white");
-  rect(-canvasWidth/2, 500, canvasWidth, 100);
+  rect(-canvasWidth / 2, 500, canvasWidth, 100);
   textSize(64);
   fill("black");
-  text("Name of Song", 0, 1110/2); //TODO: add name of song
+  text("Name of Song", 0, 1110 / 2); //TODO: add name of song
   textAlign(CENTER, CENTER);
 
-  noFill()
+  noFill();
   // Make Y axis point down
 }
