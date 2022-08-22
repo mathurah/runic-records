@@ -232,6 +232,8 @@ function draw() {
   // Center
   fill("black");
   drawCircle(0, 0, 20);
+
+  drawLabel();
 }
 
 // Draws square from center instead of top left
