@@ -63,7 +63,11 @@ class Chord {
 
       fill("white")
       const radsBarCompletion = TWO_PI * pctBarCompletion
-      arc(0, 0, 150, 150, PI + radsBarCompletion, TWO_PI + radsBarCompletion)
+      arc(
+        0, 0, 150, 150,
+        PI + HALF_PI + radsBarCompletion,
+        TWO_PI + HALF_PI + radsBarCompletion,
+      );
     } else {
       drawSquare(
         // Center color blobs
@@ -198,26 +202,34 @@ function setup() {
 }
 
 function draw() {
-  // Init styles
-  rotate(0);
-  fill("white");
-  stroke("white");
-  strokeWeight(1);
-
+  push()
+  noStroke();
   background(BG_COLOR);
 
   // Sets origin to center
   translate(width / 2, height / 2);
 
-  noStroke();
-  drawVinyl();
-
+  // Music timing
   pctBarCompletion = (song.currentTime() % secondsPerBar) / secondsPerBar;
   latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4);
 
   prevLatestBar = latestBar;
   latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1;
 
+  // Percussive aura
+  // NOTE For initial version make it pulse on beats 1 and 3
+  fill(chordSet1.chords[0].col)
+  const maxPulseLength = 50
+  const pulseLength = (
+    maxPulseLength *
+    (1 - ((pctBarCompletion % 0.5) / 0.5) ** 3)
+  )
+  drawCircle(0, 0, vinylDiamter + pulseLength)
+
+  // Vinyl
+  drawVinyl();
+
+  // Chords
   if (prevLatestBar != latestBar) {
     // Rotate chords
     // Preferable to array rotate instead of index magic to maintain z-indexes
@@ -241,6 +253,7 @@ function draw() {
   drawCircle(0, 0, 20);
 
   drawLabel();
+  pop()
 }
 
 // Draws square from center instead of top left
