@@ -3,7 +3,7 @@ const canvasWidth = 1024
 const canvasHeight = 1024
 const BEATS_IN_BAR = 4
 let BG_COLOR;
-
+let COLORS;
 
 const chords = [
   "yellow",
@@ -45,7 +45,15 @@ const runes_list = [
 ]
 
 function setup() {
-  BG_COLOR = color(241, 148, 148, 100)
+  COLORS = {
+    "pink": color(241, 148, 148, 100),
+    "yellow": color("#ECD89D"),
+    "blue": color("#278B9A"),
+    "red": color("#E75B64"),
+    "green": color("#44A57C"),
+  }
+  BG_COLOR = COLORS["pink"]
+
   createCanvas(canvasWidth, canvasHeight)
   frameRate(60)
   background(BG_COLOR)
@@ -53,7 +61,7 @@ function setup() {
 
 function draw() {
   background(BG_COLOR)
-  vinyl(chords)
+  drawVinyl(chords)
   runes_list.forEach(rune => rune.draw())
 }
 
@@ -75,7 +83,7 @@ function drawCircle(x, y, size) {
   )
 }
 
-function vinyl(chords) {
+function drawVinyl(chords) {
   fill("black")
   drawCircle(0, 0, 600)
 
@@ -87,7 +95,7 @@ function vinyl(chords) {
   const squareSize = 12
   noStroke()
   chords.forEach((chordCol, idx) => {
-    fill(chordCol)
+    fill(COLORS[chordCol])
     if (idx == 0) {
       drawCircle(0, 0, 150)
       return
@@ -103,8 +111,4 @@ function vinyl(chords) {
   // Center
   fill("black");
   drawCircle(0, 0, 30);
-}
-
-function drawGradient(x, y, w, h, c1, c2, axis) {
-  noFill();
 }
