@@ -12,12 +12,15 @@ const chords = [
   "green",
 ]
 
+const vinylDiamter = 650
+const groovesDiamters = [550, 425, 300]
+
 class Rune {
   constructor(beat, col) {
     this.beat = beat
     this.col = col
     this.size = 24
-    this.magnitude = 300
+    this.magnitude = 0.5*groovesDiamters[0]
   }
 
   getPos() {
@@ -47,8 +50,8 @@ const runes_list = [
 function setup() {
   COLORS = {
     "pink": color(241, 148, 148, 100),
-    "yellow": color("#ECD89D"),
-    "blue": color("#278B9A"),
+    "yellow": color("yellow"),
+    "blue": color("#67B8D6"),
     "red": color("#E75B64"),
     "green": color("#44A57C"),
   }
@@ -85,11 +88,10 @@ function drawCircle(x, y, size) {
 
 function drawVinyl(chords) {
   fill("black")
-  drawCircle(0, 0, 600)
+  drawCircle(0, 0, vinylDiamter)
 
-  stroke("grey")
-  drawCircle(0, 0, 450)
-  drawCircle(0, 0, 300)
+  stroke("white")
+  groovesDiamters.forEach(radius => drawCircle(0, 0, radius))
 
   // DALL-E square blobs indicating next chords
   const squareSize = 12
@@ -110,5 +112,5 @@ function drawVinyl(chords) {
 
   // Center
   fill("black");
-  drawCircle(0, 0, 30);
+  drawCircle(0, 0, 20);
 }
