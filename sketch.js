@@ -96,6 +96,9 @@ function draw() {
   latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR);
 
   runes_list.forEach((rune) => rune.draw());
+
+  fill("pink");
+  drawCompleteRecordHead();
 }
 
 // Draws square from center instead of top left
@@ -112,7 +115,8 @@ function drawTriangle(x, y, r) {
 
 function drawCompleteRecordHead() {
   const recordHeadSize = [60, 90];
-  rotate(PI / 15);
+  rotate(-PI / 5);
+  translate(0, 10);
   drawRecordHead(0, 0, recordHeadSize[0], recordHeadSize[1]);
   drawRecordSide();
 }
@@ -171,6 +175,7 @@ function drawLabel() {
   rect(-canvasWidth / 2, 500, canvasWidth, 100);
   textSize(64);
   fill("black");
+
   text("Serotonin", 0, 1110 / 2);
   textAlign(CENTER, CENTER);
 
