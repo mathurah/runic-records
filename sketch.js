@@ -3,13 +3,13 @@ const canvasWidth = 1024;
 const canvasHeight = 1200;
 const BEATS_IN_BAR = 4;
 const BPM = 149;
-const secondsPerBar = 60 / BPM * BEATS_IN_BAR;
+const secondsPerBar = (60 / BPM) * BEATS_IN_BAR;
 
 let BG_COLOR;
 let COLORS;
-let latest16thBeat
-let latestBar
-let song
+let latest16thBeat;
+let latestBar;
+let song;
 
 const chords = ["yellow", "blue", "red", "green"];
 
@@ -20,16 +20,18 @@ const groovesDiamters = [550, 425, 300];
 
 class ChordSet {
   constructor(chords, minActiveBarNum, maxActiveBarNum) {
-    this.chords = []
-    chords.forEach((chord, idx) => this.chords.push(
-      new Chord(
-        chord.col,
-        minActiveBarNum,
-        maxActiveBarNum,
-        idx,
-        this.chords.length,
+    this.chords = [];
+    chords.forEach((chord, idx) =>
+      this.chords.push(
+        new Chord(
+          chord.col,
+          minActiveBarNum,
+          maxActiveBarNum,
+          idx,
+          this.chords.length
+        )
       )
-    ))
+    );
   }
 }
 
@@ -46,34 +48,42 @@ class Chord {
     this.maxActiveBarNum = maxActiveBarNum;
     this.chordIdx = chordIdx;
     this.chordSetLength = chordSetLength;
-    this.squareSize = 12
+    this.squareSize = 12;
   }
 
   draw() {
     fill(this.col);
     if (
-      (this.chordIdx == 0) &&
-      (latestBar >= this.minActiveBarNum) &&
-      (latestBar <= this.maxActiveBarNum)
+      this.chordIdx == 0 &&
+      latestBar >= this.minActiveBarNum &&
+      latestBar <= this.maxActiveBarNum
     ) {
       drawCircle(0, 0, 150);
     } else {
       drawSquare(
         // Center color blobs
-        this.squareSize*2 * (this.chordIdx - 1 - this.chordSetLength / 2),
+        this.squareSize * 2 * (this.chordIdx - 1 - this.chordSetLength / 2),
         30,
         this.squareSize
-      )
+      );
     }
   }
 }
 
 class RuneSet {
   constructor(runes, minActiveBarNum, maxActiveBarNum, grooveIndex) {
-    this.runes = []
-    runes.forEach(rune => this.runes.push(
-      new Rune(rune.beat, rune.col, minActiveBarNum, maxActiveBarNum, grooveIndex)
-    ))
+    this.runes = [];
+    runes.forEach((rune) =>
+      this.runes.push(
+        new Rune(
+          rune.beat,
+          rune.col,
+          minActiveBarNum,
+          maxActiveBarNum,
+          grooveIndex
+        )
+      )
+    );
   }
 }
 
@@ -88,15 +98,15 @@ class Rune {
   constructor(beat, col, minActiveBarNum, maxActiveBarNum, grooveIndex) {
     this.beat = beat;
     this.col = col;
-    this.minActiveBarNum = minActiveBarNum
-    this.maxActiveBarNum = maxActiveBarNum
+    this.minActiveBarNum = minActiveBarNum;
+    this.maxActiveBarNum = maxActiveBarNum;
     this.size = 24;
     this.magnitude = 0.5 * groovesDiamters[grooveIndex];
   }
 
   getPos() {
     // Convert beat to radians
-    const rad = ((this.beat-2) / BEATS_IN_BAR) * TWO_PI;
+    const rad = ((this.beat - 2) / BEATS_IN_BAR) * TWO_PI;
 
     // Convert beat to coordinates
     const y = sin(rad);
@@ -106,12 +116,12 @@ class Rune {
 
   draw() {
     if (
-      (song.currentTime() > 0) &&
-      (this.isActive(latest16thBeat)) &&
-      (latestBar >= this.minActiveBarNum) &&
-      (latestBar <= this.maxActiveBarNum)
+      song.currentTime() > 0 &&
+      this.isActive(latest16thBeat) &&
+      latestBar >= this.minActiveBarNum &&
+      latestBar <= this.maxActiveBarNum
     ) {
-      fill(this.col)
+      fill(this.col);
     } else {
       fill("white");
     }
@@ -128,9 +138,9 @@ class Rune {
 
 function canvasPressed() {
   if (song.isPlaying()) {
-    song.stop()
+    song.stop();
   } else {
-    song.play()
+    song.play();
   }
 }
 
@@ -154,7 +164,7 @@ function setup() {
     new _Rune(2, COLORS["green"]),
     new _Rune(3, COLORS["green"]),
     new _Rune(4, COLORS["green"]),
-  ]
+  ];
 
   const runesList2 = [
     new _Rune(1, COLORS["blue"]),
@@ -162,19 +172,19 @@ function setup() {
     new _Rune(3, COLORS["green"]),
     new _Rune(4, COLORS["yellow"]),
     new _Rune(4.5, COLORS["green"]),
-  ]
+  ];
 
   chordList1 = [
     new _Chord(COLORS["yellow"]),
     new _Chord(COLORS["blue"]),
     new _Chord(COLORS["red"]),
     new _Chord(COLORS["green"]),
-  ]
+  ];
 
-  runeSet1 = new RuneSet(runesList1, 1, 3, 0)
-  runeSet2 = new RuneSet(runesList2, 4, 4, 1)
+  runeSet1 = new RuneSet(runesList1, 1, 3, 0);
+  runeSet2 = new RuneSet(runesList2, 4, 4, 1);
 
-  chordSet1 = new ChordSet(chordList1, 1, 8)
+  chordSet1 = new ChordSet(chordList1, 1, 8);
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.mousePressed(canvasPressed);
@@ -197,25 +207,25 @@ function draw() {
   noStroke();
   drawVinyl();
 
-  pctBarCompletion = song.currentTime() % secondsPerBar / secondsPerBar
-  latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4)
+  pctBarCompletion = (song.currentTime() % secondsPerBar) / secondsPerBar;
+  latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4);
 
-  prevLatestBar = latestBar
-  latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1
+  prevLatestBar = latestBar;
+  latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1;
 
   if (prevLatestBar != latestBar) {
-    chordList1.push(chordList1.shift())
-    chordSet1 = new ChordSet(chordList1, 1, 32)
+    chordList1.push(chordList1.shift());
+    chordSet1 = new ChordSet(chordList1, 1, 32);
   }
 
-  noStroke()
-  runeSet1.runes.forEach(rune => rune.draw())
-  runeSet2.runes.forEach(rune => rune.draw())
+  noStroke();
+  runeSet1.runes.forEach((rune) => rune.draw());
+  runeSet2.runes.forEach((rune) => rune.draw());
 
-  chordSet1.chords.forEach(chord => chord.draw())
+  chordSet1.chords.forEach((chord) => chord.draw());
 
-  // fill("pink");
-  // drawCompleteRecordHead();
+  fill("pink");
+  drawCompleteRecordHead();
 
   // Center
   fill("black");
@@ -228,6 +238,22 @@ function drawSquare(x, y, size) {
   square(x - size / 2, y - size / 2, size);
 }
 
+//RecordHead
+function drawCompleteRecordHead() {
+  const recordHeadSize = [60, 90];
+  rotate(PI / 15);
+  drawRecordHead(0, 0, recordHeadSize[0], recordHeadSize[1]);
+  drawRecordSide();
+}
+function drawRecordHead(x, y, width, height) {
+  rotate(PI);
+  rect(x - groovesDiamters[2] / 3, y + groovesDiamters[1] / 2, width, height);
+}
+
+function drawRecordSide() {
+  rotate(PI / 2);
+  rect(groovesDiamters[2] / 1.25, 10, 20, 30);
+}
 // Upside down equilateral triangle
 function drawTriangle(x, y, r) {
   const l = sqrt(r);
