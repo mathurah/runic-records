@@ -75,9 +75,10 @@ function setup() {
 
   runes_list = [
     new Rune(1, COLORS["blue"]),
+    new Rune(1.5, COLORS["blue"]),
     new Rune(2, COLORS["green"]),
-    new Rune(2.5, COLORS["blue"]),
     new Rune(3, COLORS["green"]),
+    new Rune(4, COLORS["green"]),
   ];
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
