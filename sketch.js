@@ -9,14 +9,64 @@ let BG_COLOR;
 let COLORS;
 let latest16thBeat
 let latestBar
-let runes_list
 let song
 
 const chords = ["yellow", "blue", "red", "green"];
 
 const vinylDiamter = 650;
+
+// TODO Set 4 grooves to allow for 4 bar rhythm loops
 const groovesDiamters = [550, 425, 300];
 
+class ChordSet {
+  constructor(chords, minActiveBarNum, maxActiveBarNum) {
+    this.chords = []
+    chords.forEach((chord, idx) => this.chords.push(
+      new Chord(
+        chord.col,
+        minActiveBarNum,
+        maxActiveBarNum,
+        idx,
+        this.chords.length,
+      )
+    ))
+  }
+}
+
+class _Chord {
+  constructor(col) {
+    this.col = col;
+  }
+}
+
+class Chord {
+  constructor(col, minActiveBarNum, maxActiveBarNum, chordIdx, chordSetLength) {
+    this.col = col;
+    this.minActiveBarNum = minActiveBarNum;
+    this.maxActiveBarNum = maxActiveBarNum;
+    this.chordIdx = chordIdx;
+    this.chordSetLength = chordSetLength;
+    this.squareSize = 12
+  }
+
+  draw() {
+    fill(this.col);
+    if (
+      (this.chordIdx == 0) &&
+      (latestBar >= this.minActiveBarNum) &&
+      (latestBar <= this.maxActiveBarNum)
+    ) {
+      drawCircle(0, 0, 150);
+    } else {
+      drawSquare(
+        // Center color blobs
+        this.squareSize*2 * (this.chordIdx - 1 - this.chordSetLength / 2),
+        30,
+        this.squareSize
+      )
+    }
+  }
+}
 
 class RuneSet {
   constructor(runes, minActiveBarNum, maxActiveBarNum, grooveIndex) {
@@ -114,8 +164,17 @@ function setup() {
     new _Rune(4.5, COLORS["green"]),
   ]
 
+  chordList1 = [
+    new _Chord(COLORS["yellow"]),
+    new _Chord(COLORS["blue"]),
+    new _Chord(COLORS["red"]),
+    new _Chord(COLORS["green"]),
+  ]
+
   runeSet1 = new RuneSet(runesList1, 1, 3, 0)
   runeSet2 = new RuneSet(runesList2, 4, 4, 1)
+
+  chordSet1 = new ChordSet(chordList1, 1, 8)
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.mousePressed(canvasPressed);
@@ -135,21 +194,32 @@ function draw() {
   // Sets origin to center
   translate(width / 2, height / 2);
 
-  // Make Y axis point up
-  scale(1, -1);
-
   noStroke();
-  drawVinyl(chords);
+  drawVinyl();
 
   pctBarCompletion = song.currentTime() % secondsPerBar / secondsPerBar
   latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR + 4)
+
+  prevLatestBar = latestBar
   latestBar = Math.floor(song.currentTime() / secondsPerBar) + 1
 
+  if (prevLatestBar != latestBar) {
+    chordList1.push(chordList1.shift())
+    chordSet1 = new ChordSet(chordList1, 1, 32)
+  }
+
+  noStroke()
   runeSet1.runes.forEach(rune => rune.draw())
   runeSet2.runes.forEach(rune => rune.draw())
 
+  chordSet1.chords.forEach(chord => chord.draw())
+
   // fill("pink");
   // drawCompleteRecordHead();
+
+  // Center
+  fill("black");
+  drawCircle(0, 0, 20);
 }
 
 // Draws square from center instead of top left
@@ -184,41 +254,17 @@ function drawCircle(x, y, size) {
   circle(x, y, size);
 }
 
-function drawVinyl(chords) {
+function drawVinyl() {
   fill("black");
   drawCircle(0, 0, vinylDiamter);
 
   stroke("white");
   groovesDiamters.forEach((diamter) => drawCircle(0, 0, diamter));
-
-  // DALL-E square blobs indicating next chords
-  const squareSize = 12;
-  noStroke();
-  chords.forEach((chordCol, idx) => {
-    fill(COLORS[chordCol]);
-    if (idx == 0) {
-      drawCircle(0, 0, 150);
-      return;
-    }
-    drawSquare(
-      // Center color blobs
-      squareSize * (idx - chords.length / 2),
-      -30,
-      squareSize
-    );
-  });
-
-  // Center
-  fill("black");
-  drawCircle(0, 0, 20);
-
-  //label
-  drawLabel();
 }
 
 function drawLabel() {
   // Make Y axis point down
-  scale(1, -1);
+  // scale(1, -1);
 
   strokeWeight(0);
   stroke("black");
