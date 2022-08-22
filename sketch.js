@@ -11,6 +11,7 @@ let pctBarCompletion;
 let latest16thBeat;
 let latestBar;
 let song;
+let midi;
 
 const chords = ["yellow", "blue", "red", "green"];
 
@@ -18,6 +19,16 @@ const vinylDiamter = 650;
 
 // TODO Set 4 grooves to allow for 4 bar rhythm loops
 const groovesDiamters = [550, 425, 300];
+
+const M = new Midi()
+
+function getBarNum(midiTime) {
+  return 1 + Math.floor((midiTime * 2) / BEATS_IN_BAR)
+}
+
+function get16thBeat(midiTime) {
+  return (midiTime * 8) % (BEATS_IN_BAR * 4)
+}
 
 class ChordSet {
   constructor(chords, minActiveBarNum, maxActiveBarNum) {
@@ -155,6 +166,9 @@ function canvasPressed() {
 
 function preload() {
   song = loadSound("audio/girl-in-red--serotonin.mp3");
+  Midi
+    .fromUrl("midi/girl-in-red--serotonin.midi")
+    .then(file => midi = file)
 }
 
 function setup() {
@@ -164,24 +178,38 @@ function setup() {
     blue: color("#67B8D6"),
     red: color("#E75B64"),
     green: color("#44A57C"),
+    orange: color("orange"),
+    purple: color("purple"),
   };
   BG_COLOR = COLORS["pink"];
 
-  const runesList1 = [
-    new _Rune(1, COLORS["blue"]),
-    new _Rune(1.5, COLORS["yellow"]),
-    new _Rune(2, COLORS["green"]),
-    new _Rune(3, COLORS["green"]),
-    new _Rune(4, COLORS["green"]),
-  ];
+  const noteToColor = {
+    D: "blue",
+    E: "green",
+    F: "yellow",
+    G: "pink",
+    A: "red",
+    B: "orange",
+    C: "purple",
+  }
 
-  const runesList2 = [
-    new _Rune(1, COLORS["blue"]),
-    new _Rune(2, COLORS["green"]),
-    new _Rune(3, COLORS["green"]),
-    new _Rune(4, COLORS["yellow"]),
-    new _Rune(4.5, COLORS["green"]),
-  ];
+  const runesList1 = midi
+    .tracks[2]
+    .notes
+    .filter(note => getBarNum(note.time) == 1)
+    .map(note => new _Rune(
+      1 + get16thBeat(note.time) / 4,
+      COLORS[noteToColor[note.name[0]]]
+    ))
+
+  const runesList2 = midi
+    .tracks[2]
+    .notes
+    .filter(note => getBarNum(note.time) == 4)
+    .map(note => new _Rune(
+      1 + get16thBeat(note.time) / 4,
+      COLORS[noteToColor[note.name[0]]]
+    ))
 
   chordList1 = [
     new _Chord(COLORS["yellow"]),
