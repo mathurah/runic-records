@@ -2,8 +2,14 @@
 const canvasWidth = 1024;
 const canvasHeight = 1200;
 const BEATS_IN_BAR = 4;
+const BPM = 120;
+const secondsPerBar = (60 / BPM) * BEATS_IN_BAR;
+
 let BG_COLOR;
 let COLORS;
+let ms = 0;
+let latest16thBeat;
+let runes_list;
 
 const chords = ["yellow", "blue", "red", "green"];
 
@@ -29,22 +35,25 @@ class Rune {
   }
 
   draw() {
-    fill(this.col);
+    if (this.isActive(latest16thBeat)) {
+      fill(this.col);
+    } else {
+      fill("white");
+    }
     let [x, y] = this.getPos();
     drawSquare(x, y, this.size);
   }
-}
 
-const runes_list = [
-  new Rune(1, "white"),
-  new Rune(2, "white"),
-  new Rune(2.5, "white"),
-  new Rune(3, "white"),
-];
+  isActive(latest16thBeat) {
+    return (
+      this.beat * 4 == latest16thBeat || this.beat * 4 == latest16thBeat - 1
+    );
+  }
+}
 
 function setup() {
   COLORS = {
-    pink: color(241, 148, 148, 100),
+    pink: color(241, 148, 148),
     yellow: color("yellow"),
     blue: color("#67B8D6"),
     red: color("#E75B64"),
@@ -52,36 +61,41 @@ function setup() {
   };
   BG_COLOR = COLORS["pink"];
 
+  runes_list = [
+    new Rune(1, COLORS["blue"]),
+    new Rune(2, COLORS["green"]),
+    new Rune(2.5, COLORS["blue"]),
+    new Rune(3, COLORS["green"]),
+  ];
+
   createCanvas(canvasWidth, canvasHeight);
-  frameRate(60);
+  frameRate(120);
   background(BG_COLOR);
 }
 
 function draw() {
   // Init styles
+  rotate(0);
   fill("white");
   stroke("white");
   strokeWeight(1);
 
+  background(BG_COLOR);
+
   // Sets origin to center
   translate(width / 2, height / 2);
+
   // Make Y axis point up
   scale(1, -1);
-
-  background(BG_COLOR);
 
   noStroke();
   drawVinyl(chords);
 
-  runes_list.forEach((rune) => rune.draw());
-  fill("white");
-  const playHeadSize = 100;
-  rotate(-PI / 4);
-  drawTriangle(0, vinylDiamter / 2, playHeadSize);
-  rotate(0);
+  ms += deltaTime;
+  pctBarCompletion = ((ms / 1000) % secondsPerBar) / secondsPerBar;
+  latest16thBeat = Math.floor(pctBarCompletion * 4 * BEATS_IN_BAR);
 
-  fill("pink");
-  drawCompleteRecordHead();
+  runes_list.forEach((rune) => rune.draw());
 }
 
 // Draws square from center instead of top left
@@ -157,9 +171,8 @@ function drawLabel() {
   rect(-canvasWidth / 2, 500, canvasWidth, 100);
   textSize(64);
   fill("black");
-  text("Name of Song", 0, 1110 / 2); //TODO: add name of song
+  text("Serotonin", 0, 1110 / 2);
   textAlign(CENTER, CENTER);
 
   noFill();
-  // Make Y axis point down
 }
