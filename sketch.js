@@ -58,31 +58,62 @@ function setup() {
 }
 
 function draw() {
-  background(BG_COLOR);
-  drawVinyl(chords);
-  runes_list.forEach((rune) => rune.draw());
+  // Init styles
+  fill("white")
+  stroke("white")
+  strokeWeight(1)
+  
+  // Sets origin to center
+  translate(width/2, height/2); 
+  // Make Y axis point up
+  scale(1, -1);
+
+  background(BG_COLOR)
+
+  noStroke()
+  drawVinyl(chords)
+ 
+  runes_list.forEach(rune => rune.draw())
+  fill("white")
+  const playHeadSize = 100
+  rotate(-PI/4)
+  drawTriangle(0, vinylDiamter/2, playHeadSize)
+  rotate(0)
 }
 
 // Draws square from center instead of top left
 // Coordinates (0, 0) will draw a square in the center of the canvas
 function drawSquare(x, y, size) {
   square(
-    x - size / 2 + canvasWidth / 2,
-    y - size / 2 + canvasHeight / 2 - 100,
+    x - size/2,
+    y - size/2,
     size
   );
 }
 
+// Upside down equilateral triangle
+function drawTriangle(x, y, r) {
+  const l = sqrt(r)
+  triangle(
+    x - l,
+    y + l,
+    x + l,
+    y + l,
+    x,
+    y - l,
+  )
+}
+
 function drawCircle(x, y, size) {
-  circle(x + canvasWidth / 2, y + canvasHeight / 2 - 100, size);
+  circle(x, y, size)
 }
 
 function drawVinyl(chords) {
   fill("black");
   drawCircle(0, 0, vinylDiamter);
 
-  stroke("white");
-  groovesDiamters.forEach((radius) => drawCircle(0, 0, radius));
+  stroke("white")
+  groovesDiamters.forEach(diamter => drawCircle(0, 0, diamter))
 
   // DALL-E square blobs indicating next chords
   const squareSize = 12;
@@ -95,8 +126,8 @@ function drawVinyl(chords) {
     }
     drawSquare(
       // Center color blobs
-      squareSize * (idx - chords.length / 2),
-      30,
+      (squareSize * (idx - chords.length / 2)),
+      -30,
       squareSize
     );
   });
@@ -110,12 +141,18 @@ function drawVinyl(chords) {
 }
 
 function drawLabel() {
-  strokeWeight(4);
+  // Make Y axis point down
+  scale(1, -1);
+
+  strokeWeight(0);
   stroke("black");
   fill("white");
-  rect(0, 1000, 1024, 200);
+  rect(-canvasWidth/2, 500, canvasWidth, 100);
   textSize(64);
   fill("black");
-  text("Name of Song", canvasWidth / 2, 1110); //TODO: add name of song
+  text("Name of Song", 0, 1110/2); //TODO: add name of song
   textAlign(CENTER, CENTER);
+
+  noFill()
+  // Make Y axis point down
 }
