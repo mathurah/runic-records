@@ -12,15 +12,23 @@ let latest16thBeat;
 let latestBar;
 let song;
 let midi;
+let runeSets = [];
 
 const chords = ["yellow", "blue", "red", "green"];
 
+const noteToColor = {
+  D: "blue",
+  E: "green",
+  F: "yellow",
+  G: "pink",
+  A: "red",
+  B: "orange",
+  C: "purple",
+}
+
 const vinylDiamter = 650;
 
-// TODO Set 4 grooves to allow for 4 bar rhythm loops
-const groovesDiamters = [550, 425, 300];
-
-const M = new Midi()
+const groovesDiamters = [vinylDiamter, 550, 425, 300];
 
 function getBarNum(midiTime) {
   return 1 + Math.floor((midiTime * 2) / BEATS_IN_BAR)
@@ -29,6 +37,22 @@ function getBarNum(midiTime) {
 function get16thBeat(midiTime) {
   return (midiTime * 8) % (BEATS_IN_BAR * 4)
 }
+
+function createRuneSets(barNum, trackNum) {
+  return [0, 1, 2, 3].map(i => new RuneSet(
+    midi
+      .tracks[trackNum]
+      .notes
+      .filter(note => getBarNum(note.time) == barNum+i)
+      .map(note => new _Rune(
+        1 + get16thBeat(note.time) / 4,
+        COLORS[noteToColor[note.name[0]]]
+      )),
+    barNum+i,
+    (barNum+i - 1) % 4
+  ))
+}
+
 
 class ChordSet {
   constructor(chords, minActiveBarNum, maxActiveBarNum) {
@@ -91,15 +115,14 @@ class Chord {
 }
 
 class RuneSet {
-  constructor(runes, minActiveBarNum, maxActiveBarNum, grooveIndex) {
+  constructor(runes, activeBarNum, grooveIndex) {
     this.runes = [];
     runes.forEach((rune) =>
       this.runes.push(
         new Rune(
           rune.beat,
           rune.col,
-          minActiveBarNum,
-          maxActiveBarNum,
+          activeBarNum,
           grooveIndex
         )
       )
@@ -115,11 +138,10 @@ class _Rune {
 }
 
 class Rune {
-  constructor(beat, col, minActiveBarNum, maxActiveBarNum, grooveIndex) {
+  constructor(beat, col, activeBarNum, grooveIndex) {
     this.beat = beat;
     this.col = col;
-    this.minActiveBarNum = minActiveBarNum;
-    this.maxActiveBarNum = maxActiveBarNum;
+    this.activeBarNum = activeBarNum;
     this.size = 24;
     this.magnitude = 0.5 * groovesDiamters[grooveIndex];
   }
@@ -135,18 +157,18 @@ class Rune {
   }
 
   draw() {
+    let [x, y] = this.getPos();
     if (
       song.currentTime() > 0 &&
       this.isActive(latest16thBeat) &&
-      latestBar >= this.minActiveBarNum &&
-      latestBar <= this.maxActiveBarNum
+      latestBar == this.activeBarNum
     ) {
       fill(this.col);
+      drawSquare(x, y, this.size*1.5);
     } else {
       fill("white");
+      drawSquare(x, y, this.size);
     }
-    let [x, y] = this.getPos();
-    drawSquare(x, y, this.size);
   }
 
   isActive(latest16thBeat) {
@@ -181,35 +203,8 @@ function setup() {
     orange: color("orange"),
     purple: color("purple"),
   };
+
   BG_COLOR = COLORS["pink"];
-
-  const noteToColor = {
-    D: "blue",
-    E: "green",
-    F: "yellow",
-    G: "pink",
-    A: "red",
-    B: "orange",
-    C: "purple",
-  }
-
-  const runesList1 = midi
-    .tracks[2]
-    .notes
-    .filter(note => getBarNum(note.time) == 1)
-    .map(note => new _Rune(
-      1 + get16thBeat(note.time) / 4,
-      COLORS[noteToColor[note.name[0]]]
-    ))
-
-  const runesList2 = midi
-    .tracks[2]
-    .notes
-    .filter(note => getBarNum(note.time) == 4)
-    .map(note => new _Rune(
-      1 + get16thBeat(note.time) / 4,
-      COLORS[noteToColor[note.name[0]]]
-    ))
 
   chordList1 = [
     new _Chord(COLORS["yellow"]),
@@ -218,10 +213,9 @@ function setup() {
     new _Chord(COLORS["green"]),
   ];
 
-  runeSet1 = new RuneSet(runesList1, 1, 3, 0);
-  runeSet2 = new RuneSet(runesList2, 4, 4, 1);
+  runeSets = createRuneSets(1, 2)
 
-  chordSet1 = new ChordSet(chordList1, 1, 8);
+  chordSet1 = new ChordSet(chordList1, 1, 9001);
 
   let canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.mousePressed(canvasPressed);
@@ -247,7 +241,7 @@ function draw() {
   // Percussive aura
   // NOTE For initial version make it pulse on beats 1 and 3
   fill(chordSet1.chords[0].col)
-  const maxPulseLength = 50
+  const maxPulseLength = 150
   const pulseLength = (
     maxPulseLength *
     (1 - ((pctBarCompletion % 0.5) / 0.5) ** 3)
@@ -263,17 +257,22 @@ function draw() {
     // Preferable to array rotate instead of index magic to maintain z-indexes
     chordList1.push(chordList1.shift());
     chordSet1 = new ChordSet(chordList1, 1, 32);
+
+    if ((latestBar % 4 == 1) && (latestBar > 1)) {
+      runeSets = createRuneSets(latestBar, 0)
+    }
   }
 
   noStroke();
-  runeSet1.runes.forEach((rune) => rune.draw());
-  runeSet2.runes.forEach((rune) => rune.draw());
+  runeSets.forEach(runeSet =>
+    runeSet.runes.forEach(rune => rune.draw())
+  )
 
   chordSet1.chords.forEach((chord) => chord.draw());
 
   push(); 
   fill("pink");
-  drawCompleteRecordHead();
+  // drawCompleteRecordHead();
   pop(); 
 
   // Center
