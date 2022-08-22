@@ -2,8 +2,12 @@
 const canvasWidth = 1024;
 const canvasHeight = 1200;
 const BEATS_IN_BAR = 4;
+const BPM = 120;
+const secondsPerBar = 60 / BPM * BEATS_IN_BAR;
+
 let BG_COLOR;
 let COLORS;
+let ms = 0
 
 const chords = ["yellow", "blue", "red", "green"];
 
@@ -44,7 +48,7 @@ const runes_list = [
 
 function setup() {
   COLORS = {
-    pink: color(241, 148, 148, 100),
+    pink: color(241, 148, 148),
     yellow: color("yellow"),
     blue: color("#67B8D6"),
     red: color("#E75B64"),
@@ -53,12 +57,14 @@ function setup() {
   BG_COLOR = COLORS["pink"];
 
   createCanvas(canvasWidth, canvasHeight);
-  frameRate(60);
+  frameRate(120);
   background(BG_COLOR);
 }
 
 function draw() {
+  background(0)
   // Init styles
+  rotate(0)
   fill("white")
   stroke("white")
   strokeWeight(1)
@@ -75,10 +81,13 @@ function draw() {
  
   runes_list.forEach(rune => rune.draw())
   fill("white")
-  const playHeadSize = 100
-  rotate(-PI/4)
-  drawTriangle(0, vinylDiamter/2, playHeadSize)
-  rotate(0)
+
+  // // Draw play head
+  // // I don't like how this looks
+  // const playHeadSize = 200
+  // ms += deltaTime
+  // rotate(TWO_PI * ((ms / 1000) % secondsPerBar) / secondsPerBar)
+  // drawTriangle(0, vinylDiamter/2, playHeadSize)
 }
 
 // Draws square from center instead of top left
