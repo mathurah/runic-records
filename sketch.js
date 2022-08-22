@@ -224,8 +224,10 @@ function draw() {
 
   chordSet1.chords.forEach((chord) => chord.draw());
 
+  push(); 
   fill("pink");
   drawCompleteRecordHead();
+  pop(); 
 
   // Center
   fill("black");
