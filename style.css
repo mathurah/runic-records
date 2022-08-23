@@ -111,7 +111,8 @@ to this section's matching END comment to see page-specific styles.
   
   body {
     font-family: HK Grotesk;
-    background-color: var(--color-bg);
+    /* background-color: var(--color-bg); */
+    background-image: url('images/dream.png');
   }
   
   /* Page structure */
