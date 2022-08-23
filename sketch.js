@@ -279,7 +279,7 @@ function draw() {
   fill("black");
   drawCircle(0, 0, 20);
 
-  drawLabel();
+  // drawLabel();
   pop()
 }
 
