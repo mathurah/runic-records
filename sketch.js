@@ -191,6 +191,8 @@ function preload() {
   Midi
     .fromUrl("midi/girl-in-red--serotonin.midi")
     .then(file => midi = file)
+
+  gradient = loadImage('images/dream.png');
 }
 
 function setup() {
@@ -226,8 +228,8 @@ function setup() {
 function draw() {
   push()
   noStroke();
-  background(BG_COLOR);
 
+  background(gradient);
   // Sets origin to center
   translate(width / 2, height / 2);
 
